@@ -59,7 +59,7 @@ if (document.getElementById('tetris')) {
                     //outside game bounds
                     cellCol + col < 0 ||
                     cellCol + col >= playfield[0].length ||
-                    cellRow + row >= playfield[0].length ||
+                    cellRow + row >= playfield.length ||
                     //collides with another piece
                     playfield[cellRow + row][cellCol + col])
                 ) {
@@ -87,15 +87,20 @@ if (document.getElementById('tetris')) {
         }
 
         //check line clears from bottom going up
-        for (let row = playfield.length - 1; row >=0; ) {
-            if (playfield[row].every(cell => !! cell)) {
-
-                //drop rows above current
-                for (let r = row; r >= 0; r--) {
+        for (let row = playfield.length - 1; row >= 0;) {
+            if (playfield[row].every(cell => !!cell)) {
+                // drop rows above current, skip -1 and -2
+                for (let r = row; r >= 1; r--) {
                     for (let c = 0; c < playfield[r].length; c++) {
-                        playfield[r][c] = playfield[r-1][c];
+                        playfield[r][c] = playfield[r - 1][c];
                     }
                 }
+
+                // clear top row after shifting
+                for (let c = 0; c < playfield[0].length; c++) {
+                    playfield[0][c] = 0;
+                }
+
             } else {
                 row--;
             }
@@ -196,15 +201,17 @@ if (document.getElementById('tetris')) {
     function loop() {
         rAF = requestAnimationFrame(loop);
         context.clearRect(0,0,canvas.width,canvas.height);
-
+        
         //draw playfield
-        for (let row = 0; row < 20; row++) {
-            for (let col = 0; col < 10; col++) {
+        for (let row = 0; row < playfield.length; row++) {
+            for (let col = 0; col < playfield[row].length; col++) {
                 if (playfield[row][col]) {
                     const name = playfield[row][col];
                     context.fillStyle = colors[name];
 
-                    context.fillRect(col * grid, row * grid, grid-1, grid-1);
+                    if (row >= 0) {
+                        context.fillRect(col * grid, row * grid, grid-1, grid-1);
+                    }
                 }
             }
         }
