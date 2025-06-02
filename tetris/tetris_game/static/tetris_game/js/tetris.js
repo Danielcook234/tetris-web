@@ -86,6 +86,8 @@ if (document.getElementById('tetris')) {
             }
         }
 
+        let linesCleared = 0;
+
         //check line clears from bottom going up
         for (let row = playfield.length - 1; row >= 0;) {
             if (playfield[row].every(cell => !!cell)) {
@@ -101,10 +103,21 @@ if (document.getElementById('tetris')) {
                     playfield[0][c] = 0;
                 }
 
+                linesCleared++;
+
             } else {
                 row--;
             }
         }
+
+        switch(linesCleared) {
+            case 1: score += 40; break;
+            case 2: score += 100; break;
+            case 3: score += 300; break;
+            case 4: score += 1200; break;
+        }
+
+        document.getElementById("score").innerHTML = "Score: " + score;
 
         tetromino = getNextTetromino();
     }
@@ -197,6 +210,7 @@ if (document.getElementById('tetris')) {
     let tetromino = getNextTetromino();
     let rAF = null;
     let gameOver = false;
+    let score = 0;
 
     function loop() {
         rAF = requestAnimationFrame(loop);
