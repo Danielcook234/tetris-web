@@ -122,15 +122,96 @@ if (document.getElementById('tetris')) {
         tetromino = getNextTetromino();
     }
 
-    function botPlay() {
-        if (++count > 5) {
-            tetromino.row++;
-            count = 0;
+    function evaluateBoard(field) {
+        let aggregateHeight = 0;
+        let completeLines = 0;
+        let holes = 0;
+        let bumpiness = 0;
+        const heights = [];
 
-            if (!isValidMove(tetromino.matrix, tetromino.row, tetromino.col)) {
-                tetromino.row--;
-                placeTetromino();
+        for (let col = 0; col < field[0].length; col++) {
+            let cellFound = false;
+            let colHeight = 0;
+            let colHoles = 0;
+
+            for (let row = 0; row < field.length; row++) {
+                if (field[row][col]) {
+                    if (!cellFound) {
+                        colHeight = field.length - row;
+                        cellFound = true;
+                    }
+                } else if (cellFound) {
+                    colHoles++;
+                }
             }
+
+            heights.push(colHeight);
+            aggregateHeight += colHeight;
+            holes += colHoles;
+        }
+
+        for (let i = 0; i < heights.length -1; i++) {
+            bumpiness += Math.abs(heights[i] - heights[i+1]);
+        }
+
+        for (let row = 0; row < field.length; row++) {
+            if (field[row].every(cell => !!cell)) {
+                completeLines++;
+            }
+        }
+
+        return (
+            -0.51066 * aggregateHeight +
+            0.76066 * completeLines +
+            -0.35663 * holes +
+            -0.184483 * bumpiness
+        );
+    }
+
+    function botPlay() {
+        let best = null;
+        let bestScore = -Infinity;
+
+        const name = tetromino.name;
+        const originalMatrix = tetromino.matrix;
+        const originalCol = tetromino.col;
+
+        for (let rotation = 0; rotation < 4; rotation++) {
+            let matrix = originalMatrix;
+            for (let r = 0; r < rotation; r++) {
+                matrix = rotate(matrix);
+            }
+
+            for (let col = -4; col < playfield[0].length; col++) {
+                let row = -2;
+                while (isValidMove(matrix, row + 1, col)) {
+                    row++;
+                }
+
+                if (!isValidMove(matrix,row,col)) continue;
+
+                const simulated = playfield.map(r => r.slice());
+                for (let r = 0; r < matrix.length; r++) {
+                    for (let c = 0; c < matrix[r].length; c++) {
+                        if (matrix[r][c] && row + r >= 0) {
+                            simulated[row + r][col + c] = name;
+                        }
+                    }
+                }
+
+                const score = evaluateBoard(simulated);
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = { row, col, matrix };
+                }
+            }
+        }
+
+        if (best) {
+            tetromino.matrix = best.matrix;
+            tetromino.row = best.row;
+            tetromino.col = best.col;
+            placeTetromino();
         }
     }
 
