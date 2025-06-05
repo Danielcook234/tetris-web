@@ -122,6 +122,18 @@ if (document.getElementById('tetris')) {
         tetromino = getNextTetromino();
     }
 
+    function botPlay() {
+        if (++count > 5) {
+            tetromino.row++;
+            count = 0;
+
+            if (!isValidMove(tetromino.matrix, tetromino.row, tetromino.col)) {
+                tetromino.row--;
+                placeTetromino();
+            }
+        }
+    }
+
     //show game over screen
     function showGameOver() {
         cancelAnimationFrame(rAF);
@@ -143,6 +155,7 @@ if (document.getElementById('tetris')) {
     const context = canvas.getContext('2d');
     const grid = 32;
     const tetrominoSequence = [];
+    const mode = "{{mode}}";
 
     //game area
     const playfield = [];
@@ -211,6 +224,7 @@ if (document.getElementById('tetris')) {
     let rAF = null;
     let gameOver = false;
     let score = 0;
+    let isBotActive = (mode === "bot");
 
     function loop() {
         rAF = requestAnimationFrame(loop);
@@ -232,15 +246,19 @@ if (document.getElementById('tetris')) {
 
         //draw tetromino
         if (tetromino) {
-            //fall every 35 frames
-            if (++count > 35) {
-                tetromino.row++;
-                count = 0;
+            if (isBotActive) {
+                botPlay();
+            } else {
+                //fall every 35 frames
+                if (++count > 35) {
+                    tetromino.row++;
+                    count = 0;
 
-                //place piece if it runs into anything
-                if (!isValidMove(tetromino.matrix, tetromino.row, tetromino.col)) {
-                    tetromino.row--;
-                    placeTetromino();
+                    //place piece if it runs into anything
+                    if (!isValidMove(tetromino.matrix, tetromino.row, tetromino.col)) {
+                        tetromino.row--;
+                        placeTetromino();
+                    }
                 }
             }
 

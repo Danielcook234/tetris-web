@@ -4,10 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Tetris Game</title>
-    <link rel="stylesheet" href="{% static 'tetris_game/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'tetris_game/css/style.css' %}?v=2">
 </head>
 <body>
     <h1>Tetris</h1>
-    <a href="{% url 'start-btn' %}" class="button"><span>Start</span></a>
+    <div class="button-container">
+        <a href="{% url 'start-btn' %}" class="button"><span>Start</span></a>
+        <a href="{% url 'bot-btn' %}" class="button"><span>Bot</span></a>
+        <a href="#" class="button" onclick="alert('Two player not implemented yet')"><span>Two player</span></a>
+    </div>
 </body>
 </html>
