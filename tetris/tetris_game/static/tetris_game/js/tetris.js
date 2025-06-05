@@ -155,7 +155,7 @@ if (document.getElementById('tetris')) {
     const context = canvas.getContext('2d');
     const grid = 32;
     const tetrominoSequence = [];
-    const mode = "{{mode}}";
+    const mode = typeof tetrisMode !== 'undefined' ? tetrisMode : "default";
 
     //game area
     const playfield = [];
@@ -224,7 +224,9 @@ if (document.getElementById('tetris')) {
     let rAF = null;
     let gameOver = false;
     let score = 0;
-    let isBotActive = (mode === "bot");
+    let isBotMode = (mode === "bot");
+
+    console.log(isBotMode);
 
     function loop() {
         rAF = requestAnimationFrame(loop);
@@ -246,7 +248,7 @@ if (document.getElementById('tetris')) {
 
         //draw tetromino
         if (tetromino) {
-            if (isBotActive) {
+            if (isBotMode) {
                 botPlay();
             } else {
                 //fall every 35 frames
@@ -279,6 +281,10 @@ if (document.getElementById('tetris')) {
     //listen to keyboard events
     document.addEventListener('keydown', function(e) {
         if (gameOver) return;
+        if (isBotMode) {
+            //player cannot change bots moves
+            return;
+        }
 
         // left and right arrow keys (move)
         if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
