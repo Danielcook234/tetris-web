@@ -7,7 +7,10 @@
     <link rel="stylesheet" href="{% static 'tetris_game/css/style.css' %}">
 </head>
 <body>
-    <h1>Tetris</h1>
-    <a href="{% url 'start-btn' %}" class="button"><span>Start</span></a>
+    <canvas id="tetris" width="320" height="640"></canvas>
+    <h1>The Game</h1>
+    <p id="score">Score:0</p>
+
+    <script src="{% static 'tetris_game/js/tetris.js' %}"></script>
 </body>
 </html>
